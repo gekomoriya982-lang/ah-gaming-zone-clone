@@ -5,6 +5,18 @@ import { db } from '../context/AuthContext'
 import { ref, onValue, off, get, set, push, update, remove } from 'firebase/database'
 import { toast } from 'sonner'
 
+const VAR_PLACEHOLDER = '{{1}}, {{2}}'
+const VAR_TEMPLATE = 'Hello {{1}}, your order for {{2}} is confirmed!'
+const VAR_PATTERN = '{{1}}, {{2}}'
+
+function formatVarButton(i) {
+  return '{{' + (i + 1) + '}}'
+}
+
+function createVarInsert(i) {
+  return '{{' + (i + 1) + '}}'
+}
+
 export default function BulkSMS() {
   const [devices, setDevices] = useState([])
   const [recipients, setRecipients] = useState('')
@@ -69,7 +81,7 @@ export default function BulkSMS() {
   }
 
   const replaceVariables = (template, vars) => {
-    return template.replace(/\{\{(\d+)\}\}/g, (_, idx) => vars[parseInt(idx) - 1] || `{{${idx}}}`)
+    return template.replace(/\{\{(\d+)\}\}/g, (_, idx) => vars[parseInt(idx) - 1] || '{{' + idx + '}}')
   }
 
   const sendSMS = async (fcmToken, number, text) => {
@@ -150,29 +162,42 @@ export default function BulkSMS() {
 
   if (!db) return <div className="p-5 text-center text-muted-foreground">Firebase not configured</div>
 
+  const renderVarButton = (h, i) => {
+    const varToken = '{{' + (i + 1) + '}}'
+    return (
+      <button
+        key={h}
+        onClick={() => setMessage(message + varToken)}
+        className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors"
+      >
+        {varToken} {h}
+      </button>
+    )
+  }
+
   return (
     <div className="p-5 space-y-6 max-w-4xl">
       <div className="flex items-center justify-between">
-        <div><h1 className="text-2xl font-black text-foreground">Bulk SMS</h1><p className="text-sm text-muted-foreground mt-1">{devices.length} active devices • {devices.length * smsLimit} SMS capacity</p></div>
+        <div><h1 className="text-2xl font-black text-foreground">Bulk SMS</h1><p className="text-sm text-muted-foreground mt-1">{devices.length} active devices \u2022 {devices.length * smsLimit} SMS capacity</p></div>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">
           <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
             <h2 className="text-lg font-bold text-foreground">Recipients</h2>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <input type="file" accept=".csv" onChange={handleCSVUpload} id="csv-upload" className="hidden" />
               <button onClick={() => document.getElementById('csv-upload').click()} className="px-4 py-2 rounded-xl bg-secondary/50 border border-border text-sm font-medium hover:bg-secondary transition-colors flex items-center gap-2"><FileText className="h-4 w-4" /> Upload CSV</button>
-              <span className="text-sm text-muted-foreground">Columns: phone, var1, var2... Use {{1}}, {{2}} in message</span>
+              <span className="text-sm text-muted-foreground">Columns: phone, var1, var2... Use {VAR_PATTERN} in message</span>
             </div>
             <textarea
               value={recipients}
               onChange={(e) => setRecipients(e.target.value)}
-              placeholder="+919876543210,John,Delhi\n+919876543211,Jane,Mumbai"
+              placeholder="+919****3210,John,Delhi\n+919****3211,Jane,Mumbai"
               rows={6}
               className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 font-mono text-sm"
             />
-            <p className="text-[11px] text-muted-foreground">One per line: number,var1,var2... Variables become {{1}}, {{2}} in message</p>
+            <p className="text-[11px] text-muted-foreground">One per line: number,var1,var2... Variables become {VAR_PATTERN} in message</p>
           </div>
 
           <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
@@ -180,14 +205,20 @@ export default function BulkSMS() {
             <textarea
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              placeholder="Hello {{1}}, your order for {{2}} is confirmed!"
+              placeholder={VAR_TEMPLATE}
               rows={4}
               className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border focus:outline-none focus:ring-2 focus:ring-primary/20"
             />
             {variableHeaders.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {variableHeaders.map((h, i) => (
-                  <button key={h} onClick={() => setMessage(message + `{{${i + 1}}}`)} className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors">{{{i + 1}}} {h}</button>
+                  <button
+                    key={h}
+                    onClick={() => setMessage(message + '{{' + (i + 1) + '}}')}
+                    className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors"
+                  >
+                    {'{{' + (i + 1) + '}}'} {h}
+                  </button>
                 ))}
               </div>
             )}

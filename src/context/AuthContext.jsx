@@ -1,35 +1,12 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
-import { initializeApp } from 'firebase/app'
 import { 
   getAuth, 
   signInWithEmailAndPassword, 
   signOut as firebaseSignOut,
   onAuthStateChanged,
-  setPersistence,
-  browserLocalPersistence
 } from 'firebase/auth'
 import { getDatabase, ref, get, set, push, update, remove, onValue, off } from 'firebase/database'
-
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "YOUR_API_KEY",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "your-project.firebaseapp.com",
-  databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL || "https://your-project-default-rtdb.firebaseio.com",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "your-project",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "your-project.appspot.com",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "...",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "1:...:web:..."
-}
-
-let app, auth, db
-
-try {
-  app = initializeApp(firebaseConfig)
-  auth = getAuth(app)
-  db = getDatabase(app)
-  setPersistence(auth, browserLocalPersistence)
-} catch (e) {
-  console.warn('Firebase initialization failed:', e)
-}
+import { initFirebase, getAuthInstance, getDbInstance } from '../firebase'
 
 const AuthContext = createContext(null)
 
@@ -37,22 +14,41 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const [authReady, setAuthReady] = useState(false)
 
   useEffect(() => {
-    if (!auth) {
-      setLoading(false)
-      return
+    const initAuth = async () => {
+      try {
+        await initFirebase()
+        const auth = getAuthInstance()
+        const db = getDbInstance()
+        
+        if (!auth) {
+          setLoading(false)
+          setAuthReady(true)
+          return
+        }
+
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+          setUser(currentUser)
+          setLoading(false)
+        })
+
+        setAuthReady(true)
+        
+        return () => unsubscribe()
+      } catch (e) {
+        console.warn('Firebase init failed:', e)
+        setLoading(false)
+        setAuthReady(true)
+      }
     }
 
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser)
-      setLoading(false)
-    })
-
-    return () => unsubscribe()
+    initAuth()
   }, [])
 
   const signIn = useCallback(async (email, password) => {
+    const auth = getAuthInstance()
     if (!auth) throw new Error('Firebase not initialized')
     setError(null)
     try {
@@ -66,6 +62,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   const signOut = useCallback(async () => {
+    const auth = getAuthInstance()
     if (!auth) return
     try {
       await firebaseSignOut(auth)
@@ -83,8 +80,8 @@ export function AuthProvider({ children }) {
     error,
     signIn,
     signOut,
-    auth,
-    db
+    auth: getAuthInstance(),
+    db: getDbInstance()
   }
 
   return (
@@ -102,4 +99,4 @@ export function useAuth() {
   return context
 }
 
-export { db }
+export { getDbInstance as db }

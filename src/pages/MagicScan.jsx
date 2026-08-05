@@ -166,7 +166,7 @@ export default function MagicScan() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button onClick={() => scanDevice(device.id)} disabled={scanning === device.id || !device.online} className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors disabled:opacity-50 flex items-center gap-1">{scanning === device.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <Zap className="h-3 w-3" /> Scan}</button>
+                      <button onClick={() => scanDevice(device.id)} disabled={scanning === device.id || !device.online} className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm font-medium hover:bg-primary/20 transition-colors disabled:opacity-50 flex items-center gap-1">{scanning === device.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <> <Zap className="h-3 w-3" /> Scan </>}</button>
                       {result && <button onClick={() => navigator.clipboard.writeText(JSON.stringify(result, null, 2))} className="p-2 rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors" title="Copy JSON"><Copy className="h-4 w-4" /></button>}
                     </div>
                   </div>

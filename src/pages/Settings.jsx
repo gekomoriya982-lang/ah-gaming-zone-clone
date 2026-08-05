@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { Settings, Save, Shield, Bell, Globe, Palette, Database, Key, Trash2, AlertTriangle, CheckCircle, XCircle } from 'lucide-react'
+import { Settings as SettingsIcon, Save, Shield, Bell, Globe, Palette, Database, Key, Trash2, AlertTriangle, CheckCircle, XCircle } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { usePanel } from '../context/PanelContext'
 import { db } from '../context/AuthContext'
@@ -9,7 +9,7 @@ import { ref, get, set, update, onValue, off } from 'firebase/database'
 import { toast } from 'sonner'
 
 const tabs = [
-  { id: 'general', label: 'General', icon: Settings },
+  { id: 'general', label: 'General', icon: SettingsIcon },
   { id: 'security', label: 'Security', icon: Shield },
   { id: 'notifications', label: 'Notifications', icon: Bell },
   { id: 'firebase', label: 'Firebase', icon: Database },

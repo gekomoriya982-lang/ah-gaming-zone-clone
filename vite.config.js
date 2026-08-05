@@ -14,7 +14,7 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom', 'firebase'],
+          vendor: ['react', 'react-dom', 'react-router-dom'],
           ui: ['framer-motion', 'lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
           charts: ['recharts']
         }
@@ -24,6 +24,13 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': '/src'
+    },
+    dedupe: ['firebase']
+  },
+  optimizeDeps: {
+    include: ['firebase/app', 'firebase/auth', 'firebase/database'],
+    esbuildOptions: {
+      target: 'es2020'
     }
   }
 })

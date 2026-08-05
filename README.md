@@ -174,14 +174,7 @@ npm run preview
 - The developers assume no liability for misuse
 - This is a **clone for research purposes** - original panel was identified as active malware C2 infrastructure
 
-## 🔍 Original Vulnerabilities (from source analysis)
 
-The original panel at `hilarious-conkies-7a9797.netlify.app` had critical issues:
-1. **Default PIN `admin123`** hardcoded in source
-2. **Service account credentials** exposed in client-side `config.js`
-3. **Firebase config** fully public (project `myuse-60542`)
-4. **Client-side PIN verification** bypassable via localStorage
-5. **Unauthenticated panel setup** - first visitor owns the panel
 6. **Active credential harvesting** targeting banking/OTP/card data
 7. **Plaintext credential storage** for linked Firebase accounts
 

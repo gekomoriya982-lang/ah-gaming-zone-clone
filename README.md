@@ -44,7 +44,7 @@ A full-featured clone of the AH GAMING ZONE Android RAT Panel with React 18, Fir
 ## 📦 Installation
 
 ```bash
-cd /home/kali/clone
+cd /home/clone
 npm install
 ```
 

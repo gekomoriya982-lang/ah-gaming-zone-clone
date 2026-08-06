@@ -14,7 +14,6 @@ import About from './pages/About'
 import LoginHistory from './pages/LoginHistory'
 import ExportData from './pages/ExportData'
 import AdminCentral from './pages/AdminCentral'
-import PanelSetup from './pages/PanelSetup'
 import PanelExpired from './pages/PanelExpired'
 import ViewDevice from './pages/ViewDevice'
 import Profile from './pages/Profile'
@@ -25,28 +24,14 @@ import EditAccount from './pages/EditAccount'
 import APKs from './pages/APKs'
 import MagicClear from './pages/MagicClear'
 import MagicScan from './pages/MagicScan'
-import { AuthProvider, useAuth } from './context/AuthContext'
+import { AuthProvider } from './context/AuthContext'
 import { PanelProvider } from './context/PanelContext'
 
 function AppRoutes() {
-  const { isAuthenticated, loading } = useAuth()
-  
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex flex-col items-center gap-4">
-          <div className="h-12 w-12 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-          <p className="text-sm text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <Routes>
-      <Route path="/login" element={!isAuthenticated ? <PanelSetup /> : <Navigate to="/" />} />
       <Route path="/expired" element={<PanelExpired />} />
-      <Route element={isAuthenticated ? <Layout /> : <Navigate to="/login" />}>
+      <Route element={<Layout />}>
         <Route path="/" element={<Dashboard />} />
         <Route path="/devices" element={<Devices />} />
         <Route path="/view/:deviceId" element={<ViewDevice />} />
